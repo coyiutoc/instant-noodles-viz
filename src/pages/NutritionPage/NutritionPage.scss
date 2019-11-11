@@ -1,0 +1,42 @@
+@import '../../index.scss';
+
+#NutritionPage {
+  background-color: black;
+  color: $flesh;
+}
+
+.nutritionHeader {
+  height: 20vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  h1 {
+    color: $flesh;
+  }
+}
+
+.nutritionContent {
+  height: 75vh;
+  >div {
+    border: 1px solid red;
+  }
+
+  .donutBlock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    >div {
+      border: 1px solid red;
+    }
+  }
+}
+
+.nutritionFooter {
+  height: 5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
