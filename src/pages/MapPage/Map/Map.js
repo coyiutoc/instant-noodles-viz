@@ -1,8 +1,12 @@
 import React, {Component} from "react";
 import "./Map.scss";
 import * as d3 from 'd3'
+import * as topojson from 'topojson'
+import {interpolateOranges} from 'd3-scale-chromatic'
 
-class DonutChart extends Component {
+import locationData from '../../../data/data.csv';
+
+class Map extends Component {
   constructor(props){
      super(props)
      this.createMap = this.createMap.bind(this)
@@ -15,132 +19,150 @@ class DonutChart extends Component {
   }
   createMap() {
     const node = this.node;
+    
+    const map = d3.select(node);
 
-    // The svg
-    var svg = d3.select(node),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
+    const width = map.node().getBoundingClientRect().width;
+    const height = width / 2;
 
-    // Map and projection
-    var projection = d3.geoMercator()
-    .center([0,20])                // GPS of location to zoom on
-    .scale(99)                       // This is like the zoom
-    .translate([ width/2, height/2 ])
+    const projection = d3.geoMercator()
+                         .translate([ width/2, height/2 ]); 
+    const path = d3.geoPath().projection(projection);
+    
+    const zoom = d3.zoom()
+                  .scaleExtent([1, 3])
+                  .translateExtent([[0,0], [width, height]])
+                  .extent([[0, 0], [width, height]])
+                  .on("zoom", zoomed);
+    
+    map.call(zoom);
 
+    const svg = map.append("svg")
+                  .attr("width", width)
+                  .attr("height", height)
+
+    const g = svg.append("g")
+                 .attr("id", "country-paths");
+
+    // Read all the data
     d3.queue()
-      .defer(d3.json, "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")  // World shape
-      .defer(d3.csv, "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_gpsLocSurfer.csv") // Position of circles
+      .defer(d3.json, "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")  // World shape
+      .defer(d3.csv, locationData) // Position of circles
       .await(ready);
 
-    function ready(error, dataGeo, data) {
+    function ready(error, world, data) {
+      if (error) throw error;
 
-    // Create a color scale
-    var allContinent = d3.map(data, function(d){return(d.homecontinent)}).keys()
-    var color = d3.scaleOrdinal()
-    .domain(allContinent)
-    .range(["orange", "blue"]);
+      var countries = topojson.feature(world, world.objects.countries).features;
+      g.selectAll(".country")
+          .data(countries)
+          .enter().insert("path", ".graticule")
+          .attr("class", "country")
+          .attr("d", path)
+          .style("stroke", "white")
+          .style("stroke-width", "0.5")
+          .style("fill", function(d) {
+            let countryName = d.properties.name;
+            let index = noodleIndex(countryName, data);
 
-    // Add a scale for bubble size
-    var valueExtent = d3.extent(data, function(d) { return +d.n; })
-    var size = d3.scaleSqrt()
-    .domain(valueExtent)  // What's in the data
-    .range([ 1, 50])  // Size in pixel
-
-    // Draw the map
-    svg.append("g")
-      .selectAll("path")
-      .data(dataGeo.features)
-      .enter()
-      .append("path")
-        .attr("fill", "#b8b8b8")
-        .attr("d", d3.geoPath()
-            .projection(projection)
-        )
-      .style("stroke", "none")
-      .style("opacity", .3)
-
-    // Add circles:
-    svg
-    .selectAll("myCircles")
-    .data(data.sort(function(a,b) { return +b.n - +a.n }).filter(function(d,i){ return i<1000 }))
-    .enter()
-    .append("circle")
-      .attr("cx", function(d){ return projection([+d.homelon, +d.homelat])[0] })
-      .attr("cy", function(d){ return projection([+d.homelon, +d.homelat])[1] })
-      .attr("r", function(d){ return size(+d.n) })
-      .style("fill", function(d){ return color(d.homecontinent) })
-      .attr("stroke", function(d){ if(d.n>2000){return "black"}else{return "none"}  })
-      .attr("stroke-width", 1)
-      .attr("fill-opacity", .4)
-
-
-
-    // Add title and explanation
-    svg
-    .append("text")
-      .attr("text-anchor", "end")
-      .style("fill", "black")
-      .attr("x", width - 10)
-      .attr("y", height - 30)
-      .attr("width", 90)
-      .html("WHERE SURFERS LIVE")
-      .style("font-size", 14)
+            if (index !== -1) {
+              return interpolateOranges(parseInt(data[index]["n"])/100);
+            } else {
+              return "black";
+            }
+          })
+          .on('mouseover', function(d, i) {
+            let countryName = d.properties.name;
+            let idx = noodleIndex(countryName, data);
+            if (idx !== -1) {
+              var currentState = this;
+              d3.select(this)
+                .style('fill', "red");
+            }
+          })
+          .on('mouseout', function(d, i) {
+            let countryName = d.properties.name;
+            let idx = noodleIndex(countryName, data);
+            if (idx !== -1) {
+              var currentState = this;
+              d3.select(this).style('fill', interpolateOranges(parseInt(data[idx]["n"])/100));
+            }
+          });
+    
+   
+     // Add a scale for bubble size
+     var valueExtent = d3.extent(data, function(d) { return +d["n"]; })
+     var size = d3.scaleSqrt()
+                 .domain(valueExtent)  // What's in the data
+                 .range([ 1, 50])  // Size in pixel
+ 
+     // Add legend: circles
+     var valuesToShow = [10, 50, 200]
+     var xCircle = 40
+     var xLabel = 90
+     svg
+     .selectAll("legend")
+     .data(valuesToShow)
+     .enter()
+     .append("circle")
+       .attr("cx", xCircle)
+       .attr("cy", function(d){ return height/2 } )
+       .attr("r", function(d){ return size(d) })
+       .style("fill", "none")
+       .attr("stroke", "white")
+ 
+     // Add legend: segments
+     svg
+     .selectAll("legend")
+     .data(valuesToShow)
+     .enter()
+     .append("line")
+       .attr('x1', function(d){ return xCircle + size(d) } )
+       .attr('x2', xLabel)
+       .attr('y1', function(d){ return height - size(d) } )
+       .attr('y2', function(d){ return height - size(d) } )
+       .attr('stroke', 'white')
+       .style('stroke-dasharray', ('2,2'))
+ 
+     // Add legend: labels
+     svg
+     .selectAll("legend")
+     .data(valuesToShow)
+     .enter()
+     .append("text")
+       .attr('x', xLabel)
+       .attr('y', function(d){ return height - size(d) } )
+       .text( function(d){ return d } )
+       .style("font-size", 10)
+       .attr('alignment-baseline', 'middle')
+       .style('fill', 'white')
     }
 
-  //   // --------------- //
-  //   // ADD LEGEND //
-  //   // --------------- //
+    function zoomed(){
+      g.attr("transform", d3.event.transform);
+    }  
 
-  //   // Add legend: circles
-  //   var valuesToShow = [100,4000,15000]
-  //   var xCircle = 40
-  //   var xLabel = 90
-  //   svg
-  //   .selectAll("legend")
-  //   .data(valuesToShow)
-  //   .enter()
-  //   .append("circle")
-  //     .attr("cx", xCircle)
-  //     .attr("cy", function(d){ return height - size(d) } )
-  //     .attr("r", function(d){ return size(d) })
-  //     .style("fill", "none")
-  //     .attr("stroke", "black")
+    function noodleIndex(countryName, noodleData) {
+      let idx = noodleData.findIndex(field => {
+        return field["homecontinent"] === countryName;
+      });
 
-  //   // Add legend: segments
-  //   svg
-  //   .selectAll("legend")
-  //   .data(valuesToShow)
-  //   .enter()
-  //   .append("line")
-  //     .attr('x1', function(d){ return xCircle + size(d) } )
-  //     .attr('x2', xLabel)
-  //     .attr('y1', function(d){ return height - size(d) } )
-  //     .attr('y2', function(d){ return height - size(d) } )
-  //     .attr('stroke', 'black')
-  //     .style('stroke-dasharray', ('2,2'))
-
-  //   // Add legend: labels
-  //   svg
-  //   .selectAll("legend")
-  //   .data(valuesToShow)
-  //   .enter()
-  //   .append("text")
-  //     .attr('x', xLabel)
-  //     .attr('y', function(d){ return height - size(d) } )
-  //     .text( function(d){ return d } )
-  //     .style("font-size", 10)
-  //     .attr('alignment-baseline', 'middle')
-  //   }
-  // }
-
+      return idx;
+    }
+    
   }
   render() {
      return (
-      <svg id="outer-svg" ref={node => this.node = node}
-           width="630" height="350">
-      </svg>
+      <div class = "svg-container">
+        <svg id="outer-svg" 
+            ref={node => this.node = node}
+            width={1200}
+            height={490} 
+            class="svg-content">
+        </svg>
+      </div>
      )
   }
 }
 
-export default DonutChart;
+export default Map;

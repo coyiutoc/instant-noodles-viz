@@ -5,11 +5,14 @@
   "dependencies": {
     "bootstrap": "^4.3.1",
     "d3": "^4.13.0",
+    "d3-scale": "^3.2.0",
+    "d3-scale-chromatic": "^1.5.0",
     "node-sass": "^4.13.0",
     "react": "^16.11.0",
     "react-bootstrap": "^1.0.0-beta.14",
     "react-dom": "^16.11.0",
-    "react-scripts": "3.2.0"
+    "react-scripts": "3.2.0",
+    "topojson": "^3.0.2"
   },
   "scripts": {
     "start": "react-scripts start",

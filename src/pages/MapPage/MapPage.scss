@@ -2,7 +2,7 @@
 
 #MapPage {
   background-color: black;
-  color: $flesh;
+  color: black;
 }
 
 .mapHeader {
@@ -21,24 +21,26 @@
     font-family: 'Menlo', 'serif';
     font-style: italic;
     letter-spacing: 6px;
-    color: $flesh;
+    color: $orange;
   }
 }
 
 .mapContent {
-
-  height: 75vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // height: 75vh;
   
-  >div {
-    border: 1px solid red;
-  }
+  // >div {
+  //   border: 1px solid red;
+  // }
 
 }
 
 .mapFooter {
-  height: 5vh;
+  height: 10vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid red;
+  // border: 1px solid red;
 }
