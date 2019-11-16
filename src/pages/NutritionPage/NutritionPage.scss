@@ -6,30 +6,47 @@
 }
 
 .nutritionHeader {
-  height: 20vh;
+  height: 30vh;
+  padding-top: 10vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 
   h1 {
     color: $flesh;
   }
+
+  h3 {
+    font-family: 'Menlo', 'serif';
+    font-style: italic;
+    color: $orange;
+  }
 }
 
 .nutritionContent {
+
   height: 75vh;
-  >div {
-    border: 1px solid red;
-  }
+  
+  // >div {
+  //   border: 1px solid red;
+  // }
 
   .donutBlock {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     flex-direction: column;
+    background-color: black;
 
-    >div {
-      border: 1px solid red;
+    // >div {
+    //   border: 1px solid red;
+    // }
+
+    h2 {
+      font-family: 'Menlo', 'serif';
+      font-style: italic;
+      color: $orange;
     }
   }
 }

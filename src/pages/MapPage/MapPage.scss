@@ -1,0 +1,44 @@
+@import '../../index.scss';
+
+#MapPage {
+  background-color: black;
+  color: $flesh;
+}
+
+.mapHeader {
+  height: 30vh;
+  padding-top: 10vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  h1 {
+    color: $flesh;
+  }
+
+  h3 {
+    font-family: 'Menlo', 'serif';
+    font-style: italic;
+    letter-spacing: 6px;
+    color: $flesh;
+  }
+}
+
+.mapContent {
+
+  height: 75vh;
+  
+  >div {
+    border: 1px solid red;
+  }
+
+}
+
+.mapFooter {
+  height: 5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid red;
+}
