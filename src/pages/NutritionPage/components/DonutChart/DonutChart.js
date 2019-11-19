@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import "./DonutChart.scss";
 import * as d3 from 'd3'
+import {scale} from 'd3-scale';
+import {interpolate} from 'd3-interpolate';
 
 class DonutChart extends Component {
   constructor(props){
@@ -18,6 +20,66 @@ class DonutChart extends Component {
      this.createDonutChart()
   }
   createDonutChart() {
+    const node = this.node;
+
+    let remainder = 100-this.state.percentage;
+    var dataset = {
+      apples: [remainder, this.state.percentage],
+    };
+
+    let width = this.node.getBoundingClientRect().width;
+    let height = this.node.getBoundingClientRect().height;
+
+    let margin = 30;
+    let innerRadius = width * 0.2;
+
+    let radius = Math.min(width, height) / 2 - margin
+    let color = ["#2B2B2B", this.state.color];
+    let svg = d3.select(node)
+                .append('svg')
+                .attr('width', width);
+    
+    var g = svg.attr('height', height)
+            .append('g')
+            .attr('transform', 'translate(' + width/2 +  ',' + height/2 +')');
+            
+    var pie = d3.pie()
+                .sort(null);
+    
+    var arc = d3.arc()
+        .innerRadius(innerRadius)
+        .outerRadius(radius);
+    
+    var path = g.selectAll("path")
+        .data(pie(dataset.apples))
+        .enter().append("path")
+        .attr("fill", function(d, i) { return color[i]; })
+        .transition()
+        .delay(function(d, i) {
+          return i * 800;
+        })
+        .attrTween('d', function(d) {
+          var i = interpolate(d.startAngle+0.1, d.endAngle);
+          return function(t) {
+              d.endAngle = i(t);
+            return arc(d);
+       }
+    });
+
+    let percent = this.state.percentage;
+
+    var text = svg.append("text")
+                  .attr("x", width/2 - 20)
+                  .attr("y", height/2)
+                  .text(function(){
+                    return percent + "%";
+                  })
+                  .attr("fill", color[1])
+                  .attr("font-family", "sans-serif")
+                  .attr("font-size", "30px")
+
+  }
+  createDonutChart2() {
 
     const node = this.node;
     // set the dimensions and margins of the graph
@@ -58,8 +120,8 @@ class DonutChart extends Component {
       .enter()
       .append('path')
       .attr('d', d3.arc()
-      .innerRadius(innerRadius)         // This is the size of the donut hole
-      .outerRadius(radius)
+                   .innerRadius(innerRadius)         // This is the size of the donut hole
+                   .outerRadius(radius)
       )
       .attr('fill', function(d){ return(color(d.data.key)) })
       .attr("stroke", "white")
