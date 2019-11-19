@@ -1,16 +1,27 @@
 .svg-container { 
-	// display: inline-block;
-	// position: relative;
-  // width: 100vw;
-  // height: 75vh;
-	// padding-bottom: 100%; 
-	// vertical-align: middle; 
 	overflow: hidden; 
 }
 
-// .svg-content { 
-// 	display: inline-block;
-// 	position: absolute;
-// 	top: 0;
-// 	left: 0;
-// }
+.tool-tip-area {
+  position: relative;
+  top: -150px;
+  margin-left: 3vw;
+  width: 300px;
+  height: 100px;
+  // border: 1px solid red;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 20px;
+  display: flex;
+  align-items: left;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.tool-tip-text #num-manufacturers-header, #num-manufacturers-value {
+  display: inline;
+  font-size: 18px;
+}
+
+#num-manufacturers-header {
+  display: none;
+}
