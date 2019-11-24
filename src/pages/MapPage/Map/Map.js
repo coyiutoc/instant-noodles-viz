@@ -22,6 +22,13 @@ class Map extends Component {
     
     const map = d3.select(node);
 
+    var tooltip = d3.select(".svg-container")
+                    .append("div")
+                    .attr("class", "tooltip")
+                    .style("position", "absolute")
+                    .style("z-index", "10")
+                    .text("a simple tooltip");
+                    
     const width = map.node().getBoundingClientRect().width;
     const height = width / 2;
 
@@ -87,15 +94,23 @@ class Map extends Component {
               d3.select(this)
                 .style('fill', "red");
 
-              d3.select("#tool-tip-country")
-                .html(countryName)
+              tooltip.transition()		
+                .duration(200)		
+                .style("opacity", .9);	
 
-              d3.select("#num-manufacturers-value")
-                .html(data[idx]["n"])
-              
-              d3.select("#num-manufacturers-header")
-                .style("display", "inline")
+              let string = `<h5>${countryName}</h5>
+                            <b>${data[idx]["n"]}</b> Manufacturers`;
+
+              tooltip.html(string)	
+                      .style("left", (d3.event.pageX + 10) + "px")		
+                      .style("top", (d3.event.pageY - 28) + "px")
+                      .style("display", "block");	
+
             }
+          })
+          .on("mousemove", function(){
+            tooltip.style("top", (d3.event.pageY - 28)+"px")
+                   .style("left",(d3.event.pageX + 10)+"px");
           })
           .on('mouseout', function(d, i) {
             let countryName = d.properties.name;
@@ -103,65 +118,11 @@ class Map extends Component {
             if (idx !== -1) {
               var currentState = this;
               d3.select(this).style('fill', interpolateOranges(parseInt(data[idx]["n"])/100));
-              
-              d3.select("#tool-tip-country")
-                .html("")
-
-              d3.select("#num-manufacturers-value")
-                .html("")
-
-              d3.select("#num-manufacturers-header")
-                .style("display", "none")
             }
+
+            tooltip.html("HELLO")	
+            .style("display", "none");	
           });
-    
-   
-     // Add a scale for bubble size
-    //  var valueExtent = d3.extent(data, function(d) { return +d["n"]; })
-    //  var size = d3.scaleSqrt()
-    //              .domain(valueExtent)  // What's in the data
-    //              .range([ 1, 50])  // Size in pixel
- 
-     // Add legend: circles
-    //  var valuesToShow = [10, 50, 200]
-    //  var xCircle = 40
-    //  var xLabel = 90
-    //  svg
-    //     .selectAll("legend")
-    //     .data(valuesToShow)
-    //     .enter()
-    //     .append("circle")
-    //       .attr("cx", 100)
-    //       .attr("cy", function(d){ return height/2 } )
-    //       .attr("r", function(d){ return size(d) })
-    //       .style("fill", "none")
-    //       .attr("stroke", "white")
- 
-    //  // Add legend: segments
-    //  svg
-    //  .selectAll("legend")
-    //  .data(valuesToShow)
-    //  .enter()
-    //  .append("line")
-    //    .attr('x1', function(d){ return xCircle + size(d) } )
-    //    .attr('x2', xLabel)
-    //    .attr('y1', function(d){ return height - size(d) } )
-    //    .attr('y2', function(d){ return height - size(d) } )
-    //    .attr('stroke', 'white')
-    //    .style('stroke-dasharray', ('2,2'))
- 
-    //  // Add legend: labels
-    //  svg
-    //  .selectAll("legend")
-    //  .data(valuesToShow)
-    //  .enter()
-    //  .append("text")
-    //    .attr('x', xLabel)
-    //    .attr('y', function(d){ return height - size(d) } )
-    //    .text( function(d){ return d } )
-    //    .style("font-size", 10)
-    //    .attr('alignment-baseline', 'middle')
-    //    .style('fill', 'white')
     }
 
     function zoomed(){
@@ -170,6 +131,11 @@ class Map extends Component {
 
     function noodleIndex(countryName, noodleData) {
       let idx = noodleData.findIndex(field => {
+
+        if (countryName === "United States of America" && field["homecontinent"].includes("United States")){
+          return true;
+        }
+        
         return field["homecontinent"] === countryName;
       });
 
@@ -186,13 +152,6 @@ class Map extends Component {
             height={490} 
             class="svg-content">
         </svg>
-        <div className = "tool-tip-area">
-          <h3 id="tool-tip-country"></h3>
-          <div className = "tool-tip-text">
-            <div id="num-manufacturers-header">Number of Manufacturers: </div>
-            <div id="num-manufacturers-value">30</div>
-          </div>
-        </div>
       </div>
      )
   }

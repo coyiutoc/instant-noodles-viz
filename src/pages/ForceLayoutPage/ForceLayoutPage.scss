@@ -1,11 +1,11 @@
 @import '../../index.scss';
 
-#MapPage {
+#ForceLayoutPage {
   background-color: black;
   color: black;
 }
 
-.mapHeader {
+.forceHeader {
   height: 30vh;
   padding-top: 10vh;
   display: flex;
@@ -25,7 +25,7 @@
   }
 }
 
-.mapContent {
+.forceContent {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -37,7 +37,7 @@
 
 }
 
-.mapFooter {
+.forceFooter {
   height: 10vh;
   display: flex;
   align-items: center;
