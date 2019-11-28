@@ -8,8 +8,8 @@ const ForceLayoutPage = () => {
     <div id = "ForceLayoutPage">
       <div className="container-fluid">
         <div className="row forceHeader">
-          <h1>I'M A TITLE</h1>
-          <h3>THROUGHOUT THE WORLD</h3>
+          <h1>WHAT PACKAGE TYPE <br></br>HAS THE MOST VARIETY?</h1>
+          <h3>NUMBER OF VARIETIES BY TYPE & MANUFACTURER</h3>
         </div>
       </div>
       <div className="container-fluid">

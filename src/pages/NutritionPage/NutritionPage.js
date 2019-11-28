@@ -87,7 +87,7 @@ class NutritionPage extends Component {
         <div className="container-fluid">
           <div className="row nutritionHeader">
             <h1>WHAT'S IN IT?</h1>
-            <h3>% Daily Values for a 566g Package</h3>
+            <h3>% DAILY VALUES FOR A 566g PACKAGE</h3>
           </div>
         </div>
         <div className="container-fluid nutritionContent">

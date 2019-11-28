@@ -6,7 +6,7 @@
 }
 
 .mapHeader {
-  height: 30vh;
+  height: 40vh;
   padding-top: 10vh;
   display: flex;
   align-items: center;
@@ -15,6 +15,7 @@
 
   h1 {
     color: $flesh;
+    font-size: 3rem;
   }
 
   h3 {
@@ -23,18 +24,44 @@
     letter-spacing: 6px;
     color: $orange;
   }
+
+  .buttonContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    padding-top: 5vh;
+
+    button {
+      width: 20vw;
+      letter-spacing: 2px;
+      border: none;
+      text-decoration: none;
+    }
+
+    .current {
+      background-color: #ff922e;
+    }
+
+    .notCurrent {
+      background-color: grey;
+    }
+
+    #leftButton {
+      border-radius: 5px 0 0 5px;
+    }
+
+    #rightButton {
+      border-radius: 0 5px 5px 0;
+    }
+  }
 }
 
 .mapContent {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 75vh;
-  
-  // >div {
-  //   border: 1px solid red;
-  // }
-
+  height: 60vh;
 }
 
 .mapFooter {

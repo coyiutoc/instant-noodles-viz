@@ -6,15 +6,17 @@
 }
 
 .forceHeader {
-  height: 30vh;
+  height: 35vh;
   padding-top: 10vh;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  padding-bottom: 5vh;
 
   h1 {
     color: $flesh;
+    font-size: 3rem;
   }
 
   h3 {
@@ -30,11 +32,6 @@
   align-items: center;
   justify-content: center;
   height: 75vh;
-  
-  // >div {
-  //   border: 1px solid red;
-  // }
-
 }
 
 .forceFooter {

@@ -6,7 +6,7 @@ import {interpolateOranges} from 'd3-scale-chromatic'
 
 import locationData from '../../../data/data.csv';
 
-class Map extends Component {
+class MapBubble extends Component {
   constructor(props){
      super(props)
      this.createMap = this.createMap.bind(this)
@@ -31,11 +31,6 @@ class Map extends Component {
                     
     const width = d3.select(".mapContent").node().getBoundingClientRect().width;
     const height = d3.select(".mapContent").node().getBoundingClientRect().height*1.2;
-
-    var color = d3.scaleLinear()
-                  .domain([0, 400])
-                  .interpolate(d3.interpolateHcl)
-                  .range([d3.rgb("#ffcb8f"), d3.rgb('#ff4517')]);
 
     const projection = d3.geoMercator()
                          .translate([ width/2, height/2 + 50]); 
@@ -78,74 +73,73 @@ class Map extends Component {
           .enter().insert("path", ".graticule")
           .attr("class", "country")
           .attr("d", path)
-          .style("stroke", "white")
-          .style("stroke-width", "0.5")
-          .style("fill", function(d) {
-            let countryName = d.properties.name;
-            let index = noodleIndex(countryName, data);
+          .style("stroke", "none")
+          .style("fill", "#b8b8b8")
+          .style("opacity", 0.3);
+      
+      var valueExtent = d3.extent(data, function(d) { return +d.n; })
+      var size = d3.scaleSqrt()
+                  .domain(valueExtent)  // What's in the data
+                  .range([ 1, 50])  // Size in pixel
 
-            if (index !== -1) {
-              return color(parseInt(data[index]["n"]));
-              //return interpolateOranges(parseInt(data[index]["n"])/100);
-            } else {
-              return "black";
-            }
-          })
-          .on('mouseover', function(d, i) {
-            let countryName = d.properties.name;
-            let idx = noodleIndex(countryName, data);
-            if (idx !== -1) {
-              var currentState = this;
-              d3.select(this)
-                .style('fill', "white");
+      g.selectAll("myCircles")
+        .data(data.sort(function(a,b) { return +b.n - +a.n }).filter(function(d,i){ return i<1000 }))
+        .enter()
+        .append("circle")
+          .attr("class", "bubble")
+          .attr("cx", function(d){ return projection([+d.homelon, +d.homelat])[0] })
+          .attr("cy", function(d){ return projection([+d.homelon, +d.homelat])[1] })
+          .attr("r", function(d){ return size(+d.n) })
+          .style("fill", "#ff7a00")
+          .attr("stroke", function(d){ if(d.n>2000){return "black"}else{return "none"}  })
+          .attr("stroke-width", 1)
+          .attr("fill-opacity", .4)
 
-              tooltip.transition()		
-                .duration(200)		
-                .style("opacity", .9);	
+      // Add legend: circles
+      var valuesToShow = [10, 50,200]
+      var xCircle = 40
+      var xLabel = 90
+      var verticalTranslation = 50;
+      var horizontalTranslation = 100;
 
-              let string = `<h5>${countryName}</h5>
-                            <b>${data[idx]["n"]}</b> Manufacturers`;
+      g.selectAll("legend")
+        .data(valuesToShow)
+        .enter()
+        .append("circle")
+          .attr("cx", xCircle + horizontalTranslation)
+          .attr("cy", function(d){ return height - size(d) - verticalTranslation } )
+          .attr("r", function(d){ return size(d) })
+          .style("fill", "none")
+          .attr("stroke", "white")
 
-              tooltip.html(string)	
-                      .style("left", (d3.event.pageX + 10) + "px")		
-                      .style("top", (d3.event.pageY - 28) + "px")
-                      .style("display", "block");	
+      // Add legend: segments
+      g.selectAll("legend")
+        .data(valuesToShow)
+        .enter()
+        .append("line")
+          .attr('x1', function(d){ return xCircle + size(d) + + horizontalTranslation} )
+          .attr('x2', xLabel + + horizontalTranslation)
+          .attr('y1', function(d){ return height - size(d) - verticalTranslation} )
+          .attr('y2', function(d){ return height - size(d) - verticalTranslation} )
+          .attr('stroke', 'white')
+          .style('stroke-dasharray', ('2,2'))
 
-            }
-          })
-          .on("mousemove", function(){
-            tooltip.style("top", (d3.event.pageY - 28)+"px")
-                   .style("left",(d3.event.pageX + 10)+"px");
-          })
-          .on('mouseout', function(d, i) {
-            let countryName = d.properties.name;
-            let idx = noodleIndex(countryName, data);
-            if (idx !== -1) {
-              var currentState = this;
-              d3.select(this).style('fill', color(parseInt(data[idx]["n"])));
-            }
-
-            tooltip.html("HELLO")	
-            .style("display", "none");	
-          });
+      // Add legend: labels
+      g.selectAll("legend")
+        .data(valuesToShow)
+        .enter()
+        .append("text")
+          .attr('x', xLabel + + horizontalTranslation)
+          .attr('y', function(d){ return height - size(d) - verticalTranslation} )
+          .text( function(d){ return d } )
+          .style("font-size", 10)
+          .attr('alignment-baseline', 'middle')
+          .style('fill', 'white')
     }
 
     function zoomed(){
       g.attr("transform", d3.event.transform);
     }  
-
-    function noodleIndex(countryName, noodleData) {
-      let idx = noodleData.findIndex(field => {
-
-        if (countryName === "United States of America" && field["homecontinent"].includes("United States")){
-          return true;
-        }
-        
-        return field["homecontinent"] === countryName;
-      });
-
-      return idx;
-    }
     
   }
   render() {
@@ -156,4 +150,4 @@ class Map extends Component {
   }
 }
 
-export default Map;
+export default MapBubble;

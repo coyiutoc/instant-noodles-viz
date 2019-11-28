@@ -32,7 +32,7 @@ class Map extends Component {
     // Map and projection
     var projection = d3.geoMercator()
                       .center([0,20])                   // GPS of location to zoom on
-                      .scale(180)                       // This is like the zoom
+                      .scale(150)                       // This is like the zoom
                       .translate([ width/2, height/2 ])
 
     d3.queue()
