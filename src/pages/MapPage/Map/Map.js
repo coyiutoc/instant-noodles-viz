@@ -33,7 +33,7 @@ class Map extends Component {
     const height = d3.select(".mapContent").node().getBoundingClientRect().height*1.2;
 
     var color = d3.scaleLinear()
-                  .domain([0, 400])
+                  .domain([0, 350])
                   .interpolate(d3.interpolateHcl)
                   .range([d3.rgb("#ffcb8f"), d3.rgb('#ff4517')]);
 
@@ -55,9 +55,80 @@ class Map extends Component {
                   .attr("height", height)
                   .style("fill", "white")
                   .style("opacity", 0.1);
-
+       
     const g = svg.append("g")
                  .attr("id", "country-paths")
+
+                 let legendColors = d3.scaleLinear()
+                 .domain([0, 20])
+                 .interpolate(d3.interpolateHcl)
+                 .range([d3.rgb("#000000"), d3.rgb('#ff4517')]);
+
+    let array = [...Array(20).keys()]
+
+    const legend = g
+           .append("g")
+           .attr("transform", `translate(100, ${height*0.85})`)
+           .selectAll("legend")
+           .data(array)
+           .enter()
+           .append("rect")
+             .attr("x", function(d, i) {
+               return 10*d;
+             })
+             .attr("y", 0)
+             .attr("width", 10)
+             .attr("height", 8)
+             .style("fill", function(d, i) {
+               return legendColors(d)
+             })
+             .attr("stroke", "none")
+             .attr("opacity", 0)
+             .transition()
+             .style("opacity", 1)
+             .duration(800);;
+
+    const legendTitle = g.append("g")
+                         .attr("transform", `translate(110, ${height*0.85 - 10})`)
+                         .append("text")
+                         .attr("x", 0)
+                         .attr("y", 0)
+                         .text("# OF MANUFACTURERS")
+                         .attr("fill", "#E07B60")
+                         .attr("fill-opacity", 0)
+                         .transition()
+                         .style("fill-opacity", 1)
+                         .duration(800);
+
+    const legendLabels = g.append("g")
+                          .attr("transform", `translate(100, ${height*0.85 + 20})`)
+                          .selectAll("legend")
+                          .data(array)
+                          .enter()
+                          .append("text")
+                          .attr("x", function(d, i) {
+                            if (i === 0) {
+                              return 0
+                            }
+                            if (i === 19 ) {
+                              return 10*(array.length-2);
+                            }
+                          })
+                          .attr("y", 10)
+                          .text(function(d, i) {
+                            if (i === 0) {
+                              return "0"
+                            }
+                            if (i === 19) {
+                              return "400"
+                            }
+                          })
+                          .attr("fill", "#E04F31")
+                          .attr("font-size", "0.8rem")
+                          .attr("fill-opacity", 0)
+                          .transition()
+                          .style("fill-opacity", 1)
+                          .duration(800);
 
     svg.call(zoom);
 
@@ -73,7 +144,7 @@ class Map extends Component {
       let geometries = world.objects.countries.geometries;
 
       var countries = topojson.feature(world, world.objects.countries).features;
-      g.selectAll(".country")
+      let paths = g.selectAll(".country")
           .data(countries)
           .enter().insert("path", ".graticule")
           .attr("class", "country")
@@ -91,7 +162,13 @@ class Map extends Component {
               return "black";
             }
           })
-          .on('mouseover', function(d, i) {
+          
+      paths.style("opacity", 0)
+            .transition()
+            .style("opacity", 1)
+            .duration(800);
+
+      paths.on('mouseover', function(d, i) {
             let countryName = d.properties.name;
             let idx = noodleIndex(countryName, data);
             if (idx !== -1) {

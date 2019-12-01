@@ -68,7 +68,7 @@ class MapBubble extends Component {
       let geometries = world.objects.countries.geometries;
 
       var countries = topojson.feature(world, world.objects.countries).features;
-      g.selectAll(".country")
+      let countryGroup = g.selectAll(".country")
           .data(countries)
           .enter().insert("path", ".graticule")
           .attr("class", "country")
@@ -76,13 +76,19 @@ class MapBubble extends Component {
           .style("stroke", "none")
           .style("fill", "#b8b8b8")
           .style("opacity", 0.3);
+
+      countryGroup
+          .style("opacity", 0)
+          .transition()
+          .style("opacity", 0.3)
+          .duration(800);
       
       var valueExtent = d3.extent(data, function(d) { return +d.n; })
       var size = d3.scaleSqrt()
                   .domain(valueExtent)  // What's in the data
                   .range([ 1, 50])  // Size in pixel
 
-      g.selectAll("myCircles")
+      let circles = g.selectAll("myCircles")
         .data(data.sort(function(a,b) { return +b.n - +a.n }).filter(function(d,i){ return i<1000 }))
         .enter()
         .append("circle")
@@ -95,12 +101,27 @@ class MapBubble extends Component {
           .attr("stroke-width", 1)
           .attr("fill-opacity", .4)
 
+      circles.style("fill-opacity", 0)
+              .transition()
+              .style("fill-opacity", 0.4)
+              .duration(800);
+
       // Add legend: circles
       var valuesToShow = [10, 50,200]
       var xCircle = 40
       var xLabel = 90
-      var verticalTranslation = 50;
-      var horizontalTranslation = 100;
+      var verticalTranslation = 100;
+      var horizontalTranslation = 150;
+
+      g.append("text")
+       .attr("x", horizontalTranslation - 40)
+       .attr("y", height - verticalTranslation + 30)
+       .text("# OF MANUFACTURERS")
+       .attr("fill", "#ff7a00")
+       .attr("fill-opacity", 0)
+       .transition()
+       .style("fill-opacity", 1)
+       .duration(800);
 
       g.selectAll("legend")
         .data(valuesToShow)
@@ -110,7 +131,11 @@ class MapBubble extends Component {
           .attr("cy", function(d){ return height - size(d) - verticalTranslation } )
           .attr("r", function(d){ return size(d) })
           .style("fill", "none")
-          .attr("stroke", "white")
+          .attr("stroke", "#ff7a00")
+          .attr("opacity", 0)
+          .transition()
+          .style("opacity", 1)
+          .duration(800);
 
       // Add legend: segments
       g.selectAll("legend")
@@ -121,8 +146,12 @@ class MapBubble extends Component {
           .attr('x2', xLabel + + horizontalTranslation)
           .attr('y1', function(d){ return height - size(d) - verticalTranslation} )
           .attr('y2', function(d){ return height - size(d) - verticalTranslation} )
-          .attr('stroke', 'white')
+          .attr('stroke', '#ff7a00')
           .style('stroke-dasharray', ('2,2'))
+          .attr("opacity", 0)
+          .transition()
+          .style("opacity", 1)
+          .duration(800);
 
       // Add legend: labels
       g.selectAll("legend")
@@ -134,7 +163,11 @@ class MapBubble extends Component {
           .text( function(d){ return d } )
           .style("font-size", 10)
           .attr('alignment-baseline', 'middle')
-          .style('fill', 'white')
+          .style('fill', '#ff7a00')
+          .attr("fill-opacity", 0)
+          .transition()
+          .style("fill-opacity", 1)
+          .duration(800);
     }
 
     function zoomed(){

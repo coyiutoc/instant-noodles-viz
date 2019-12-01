@@ -44,7 +44,13 @@
     }
 
     .notCurrent {
+      transition: 0.5s;
       background-color: grey;
+    }
+
+    .notCurrent:hover {
+      transition: 0.5s;
+      background-color: #ff922e;
     }
 
     #leftButton {

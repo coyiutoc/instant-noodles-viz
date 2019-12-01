@@ -50,8 +50,7 @@ class MapPage extends Component {
           </div>
           <div className="container-fluid">
             <div className="row mapContent">
-              {!this.state.chloroHidden && <Map />}
-              {/* {!this.state.bubbleHidden && <Map2 />} */}
+              {!this.state.chloroHidden && <Map />} 
               {!this.state.bubbleHidden && <MapBubble />}
             </div>
           </div>

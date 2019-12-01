@@ -1,0 +1,36 @@
+#barChart {
+  width: 70vw;
+  height: 75vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin-left: 10px;
+}
+
+#barHoverContent {
+  height: 75vh;
+  width: 25vw;
+  margin-left: 10px;
+  margin-right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#barContainer {
+  height: 75vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.companyImage {
+  max-height: 20vh; 
+  width: 100%; 
+  object-fit: contain;
+}

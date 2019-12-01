@@ -66,10 +66,9 @@ class Map extends Component {
               .projection(projection)
           )
         .style("stroke", "none")
-        .style("opacity", .3)
-
+      
       // Add circles:
-      svg
+      let circles = svg
         .selectAll("myCircles")
         .data(data.sort(function(a,b) { return +b.n - +a.n }).filter(function(d,i){ return i<1000 }))
         .enter()
@@ -96,17 +95,16 @@ class Map extends Component {
       var valuesToShow = [10, 50,200]
       var xCircle = 40
       var xLabel = 90
-      svg
-      .selectAll("legend")
-      .data(valuesToShow)
-      .enter()
-      .append("circle")
+      svg.selectAll("legend")
+        .data(valuesToShow)
+        .enter()
+        .append("circle")
         .attr("cx", xCircle)
         .attr("cy", function(d){ return height - size(d) } )
         .attr("r", function(d){ return size(d) })
         .style("fill", "none")
         .attr("stroke", "white")
-
+      
       // Add legend: segments
       svg
       .selectAll("legend")
