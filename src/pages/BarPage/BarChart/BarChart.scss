@@ -1,5 +1,7 @@
+@import '../../../index.scss';
+
 #barChart {
-  width: 70vw;
+  width: 60vw;
   height: 75vh;
   display: flex;
   justify-content: center;
@@ -19,10 +21,14 @@
   align-items: center;
   flex-direction: column;
   background-color: rgba(255, 255, 255, 0.1);
+
+  b {
+    color: $orange;
+  }
 }
 
 #barContainer {
-  height: 75vh;
+  height: 70vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,4 +39,12 @@
   max-height: 20vh; 
   width: 100%; 
   object-fit: contain;
+}
+
+#x-axis .domain {
+  stroke: white;
+}
+
+#x-axis .tick line {
+  stroke: none;
 }

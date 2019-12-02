@@ -31,7 +31,7 @@ class MapPage extends Component {
         <div>
         <div id = "MapPage">
           <div className="container-fluid">
-            <div className="row mapHeader">
+            <div className="row mapHeader" id="MapTop">
               <h1>WHO MAKES IT?</h1>
               <h3>MANUFACTURERS THROUGHOUT THE WORLD</h3>
               <div className = "buttonContainer">

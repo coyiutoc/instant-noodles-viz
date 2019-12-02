@@ -7,8 +7,8 @@ const ForceLayoutPage = () => {
   return (
     <div id = "ForceLayoutPage">
       <div className="container-fluid">
-        <div className="row forceHeader">
-          <h1>WHAT PACKAGE TYPE <br></br>HAS THE MOST VARIETY?</h1>
+        <div className="row forceHeader" id="ForceTop">
+          <h1>WHAT PACKAGE TYPE <br></br>IS COMMONLY PRODUCED?</h1>
           <h3>NUMBER OF VARIETIES BY TYPE & MANUFACTURER</h3>
         </div>
       </div>

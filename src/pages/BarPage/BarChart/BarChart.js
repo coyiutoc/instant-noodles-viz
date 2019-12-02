@@ -16,34 +16,44 @@ import Ottogi from '../../../assets/imgs/Ottogi.jpg';
 
 const brandSrc = {
   "Nissin": {
-    img: Nissin
+    img: Nissin,
+    country: "Japan"
   },
   "Mama": {
-    img: Mama
+    img: Mama,
+    country: "Thailand"
   },
   "Maruchan": {
-    img: Maruchan
+    img: Maruchan,
+    country: "United States"
   },
   "Myojo": {
-    img: Myojo
+    img: Myojo,
+    country: "Japan"
   },
   "Nongshim": {
-    img: Nongshim
+    img: Nongshim,
+    country: "South Korea"
   },
   "Paldo": {
-    img: Paldo
+    img: Paldo,
+    country: "South Korea"
   },
   "Samyang Foods": {
-    img: Samyang
+    img: Samyang,
+    country: "South Korea"
   },
   "Indomie": {
-    img: Indomie
+    img: Indomie,
+    country: "Indonesia"
   },
   "Koka": {
-    img: Koka
+    img: Koka,
+    country: "Singapore"
   },
   "Ottogi": {
-    img: Ottogi
+    img: Ottogi,
+    country: "South Korea"
   }
 }
 class BarChart extends Component {
@@ -87,7 +97,8 @@ class BarChart extends Component {
                      .style("z-index", "10")
                      .style("color", "white")
                      .text("NUMBER OF VARIETIES")
-                     .style("letter-spacing", "2px");
+                     .style("letter-spacing", "2px")
+                     .style("margin-bottom", "20px");
 
     d3.csv(barData, function(error, data){
       if (error) throw error;
@@ -175,10 +186,11 @@ class BarChart extends Component {
         var contentDiv = d3.select("#barHoverContent");
         // Add hover
         bars.on("mouseover", function(d) {
-          
-          contentDiv.transition()    
-              .duration(200)    
-              .style("opacity", 1);  
+
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("fill", "white")
 
           let html = `
             <img class ="companyImage" src="${brandSrc[d["Brand"]].img}"></img>
@@ -186,15 +198,24 @@ class BarChart extends Component {
             <div class = "companyTitle">
               <h3>${d["Brand"]}</h3>
             </div>
-            <b>Origin: Japan</b>
-            <b>Produces: ${d["Count"]} Varieties of Instant Noodles</b>
+            <div><b>Origin:</b> ${brandSrc[d["Brand"]].country}</div>
+            <div><b>Produces:</b> ${d["Count"]} Varieties of Instant Noodles</div>
           `
           contentDiv.html(html);  
           })          
         .on("mouseout", function(d) { 
-            contentDiv.transition()    
-                .duration(500)
-                .style("opacity", 0);
+
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr("fill", function(d) {
+                if (d["Count"] > 100) {
+                  return "#ff4517"
+                }
+                return sequentialScale(parseInt(d["Count"]))
+              })
+
+            contentDiv.html("<h3>Hover over a bar!</h3>");
 
         });
 
@@ -226,6 +247,7 @@ class BarChart extends Component {
           ref={node => this.node = node}>
         </div>
         <div id = "barHoverContent">
+          <h3>Hover over a bar!</h3>
         </div>
       </div>
      )

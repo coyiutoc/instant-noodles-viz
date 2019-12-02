@@ -7,7 +7,7 @@ const BarPage = () => {
   return (
     <div id = "BarPage">
       <div className="container-fluid">
-        <div className="row barHeader">
+        <div className="row barHeader" id="BarTop">
           <h1>WHO PRODUCES THE MOST VARIETY?</h1>
           <h3>THE TOP 10 MOST PROLIFIC MANUFACTURERS</h3>
         </div>

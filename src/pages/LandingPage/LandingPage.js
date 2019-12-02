@@ -12,12 +12,12 @@ const LandingPage = () => {
               <h1>INSTANT NOODLES</h1>
               <div className="divider"></div>
               <p>
-                A series of infographics and visualizations on what's in instant
-                noodles, its history, who makes these products, and where these
+                A series of infographics and visualizations on <font color="#D56600">what's</font> in instant
+                noodles, <font color="#D56600">who</font> makes these products, and <font color="#D56600">where</font> these
                 manufacturers are distributed throughout the world.
                 <br></br>
                 <br></br>
-                <p className="orangeColorFont">Keep scrolling.</p>
+                {/* <p className="orangeColorFont">Keep scrolling.</p> */}
                 {/* <div className="downArrow bounce">
                   <i className="fas fa-angle-down"></i>
                 </div> */}

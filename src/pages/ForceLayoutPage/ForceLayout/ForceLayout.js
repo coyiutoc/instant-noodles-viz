@@ -208,6 +208,12 @@ class ForceLayout extends Component {
     var svg = container.append("svg")
                        .attr("width", width)
                        .attr("height", height);
+  
+    svg.append("rect")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("fill", "white")
+      .style("opacity", 0.1);
 
     var color = {"Bowl": "#826A6A", "Cup":"#FFBC03", "Pack":"#BA5900", "Tray":"#F26C6C"};
 
@@ -290,7 +296,7 @@ class ForceLayout extends Component {
                         {"Type": "Cup", "Color": "#FFBC03"},
                         {"Type": "Pack", "Color": "#BA5900"},
                         {"Type": "Tray", "Color": "#F26C6C"}];
-      var xBuffer = 200;
+      var xBuffer = width*0.1;
 
       svg
         .selectAll("legend")
@@ -301,7 +307,7 @@ class ForceLayout extends Component {
             return xBuffer;
           })
           .attr("cy", function(d,i){ 
-            return 30 * (i+1);
+            return 30 * (i+1) + 100;
           })
           .attr("r",10)
           .style("fill", function(d) {
@@ -317,7 +323,7 @@ class ForceLayout extends Component {
         .append("text")
           .attr('x', xBuffer+20)
           .attr('y', function(d, i){ 
-            return 30 * (i+1);
+            return 30 * (i+1) + 100;
           })
           .text( function(d){ return d["Type"].toUpperCase() } )
           .style("font-size", 13)

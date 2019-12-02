@@ -85,7 +85,7 @@ class NutritionPage extends Component {
     return (
       <div id = "NutritionPage" ref={(el) => this.page = el} canView = {canView}>
         <div className="container-fluid">
-          <div className="row nutritionHeader">
+          <div className="row nutritionHeader" id="NutritionTop">
             <h1>WHAT'S IN IT?</h1>
             <h3>% DAILY VALUES FOR A 566g PACKAGE</h3>
           </div>
