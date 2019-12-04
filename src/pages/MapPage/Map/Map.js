@@ -59,7 +59,7 @@ class Map extends Component {
     const g = svg.append("g")
                  .attr("id", "country-paths")
 
-                 let legendColors = d3.scaleLinear()
+    let legendColors = d3.scaleLinear()
                  .domain([0, 20])
                  .interpolate(d3.interpolateHcl)
                  .range([d3.rgb("#000000"), d3.rgb('#ff4517')]);
@@ -181,7 +181,7 @@ class Map extends Component {
                 .style("opacity", .9);	
 
               let string = `<h5>${countryName}</h5>
-                            <b>${data[idx]["n"]}</b> Manufacturers`;
+                            <p><b>${data[idx]["n"]}</b> Manufacturers</p>`;
 
               tooltip.html(string)	
                       .style("left", (d3.event.pageX + 10) + "px")		

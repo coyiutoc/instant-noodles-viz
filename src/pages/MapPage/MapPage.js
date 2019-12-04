@@ -38,7 +38,7 @@ class MapPage extends Component {
                 <button id="leftButton" 
                         className={!this.state.chloroHidden ? 'current': 'notCurrent'}  
                         onClick={e => this.toggleButton(e, "chloro")}>
-                          CHLOROPLETH
+                          CHOROPLETH
                 </button>
                 <button id="rightButton" 
                         className={!this.state.bubbleHidden ? 'current': 'notCurrent'} 

@@ -1,14 +1,43 @@
-#ForceChart {
-  width: 90vw;
+#toolbar{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+
+  button {
+    width: 20vw;
+    letter-spacing: 2px;
+    border: none;
+    text-decoration: none;
+    background-color: grey;
+  }
+
+  .active {
+    transition: 0.5s;
+    background-color: #ff922e;
+  }
+
+  :hover {
+    transition: 0.5s;
+    background-color: #ff922e;
+  }
+
+  .leftButton {
+    border-radius: 5px 0 0 5px;
+  }
+
+  .rightButton {
+    border-radius: 0 5px 5px 0;
+  }
 }
 
-.tooltip {	
+.forcetooltip {	
   position: absolute;			
-  text-align: center;			
+  text-align: left;			
   width: auto;					
   height: auto;					
   padding: 10px;				
-  font: 12px sans-serif;		
+  font: 12px sans-serif;	
   background-color: rgba(255, 255, 255, 0.8);	
   border: none;		
   border-radius: 8px;			
@@ -20,9 +49,14 @@
     font-weight: bold;
     font-style: italic;
     letter-spacing: 2px;
+    font-size: 1.2rem;
   }
 
   b {
-    color: red;
+    color: black;
+  }
+
+  p {
+    font-size: 15px;
   }
 }
