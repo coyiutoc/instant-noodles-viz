@@ -17,6 +17,7 @@ const LandingPage = () => {
                 manufacturers are distributed throughout the world.
                 <br></br>
                 <br></br>
+                All visualizations are made in D3, and all data came from <a href="https://www.kaggle.com/residentmario/ramen-ratings">this dataset.</a>
                 {/* <p className="orangeColorFont">Keep scrolling.</p> */}
                 {/* <div className="downArrow bounce">
                   <i className="fas fa-angle-down"></i>

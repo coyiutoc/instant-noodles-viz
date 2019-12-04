@@ -32,7 +32,7 @@
       }
 
       @media only screen and (min-width: 768px) {
-        width: 30vw;
+        width: 33vw;
       }
 
       h1 {
@@ -65,6 +65,11 @@
         font-size: 4rem;
         color: $orange;
         opacity: 0.5;
+      }
+
+      a {
+        color: white;
+        text-decoration: underline;
       }
     }
   }

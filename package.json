@@ -16,6 +16,7 @@
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",
     "react-transition-group": "^4.3.0",
+    "react-visibility-sensor": "^5.1.1",
     "topojson": "^3.0.2"
   },
   "scripts": {

@@ -247,7 +247,7 @@ class BarChart extends Component {
           ref={node => this.node = node}>
         </div>
         <div id = "barHoverContent">
-          <h3>Hover over a bar!</h3>
+          <h3>Hover over a bar.</h3>
         </div>
       </div>
      )

@@ -2,6 +2,7 @@ import React from "react";
 import "./ForceLayoutPage.scss";
 import ForceLayout from "./ForceLayout/ForceLayout";
 import ForceLayout2 from "./ForceLayout/ForceLayout2";
+
 const ForceLayoutPage = () => {
   
   return (
