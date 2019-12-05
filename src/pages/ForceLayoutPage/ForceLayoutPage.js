@@ -9,7 +9,7 @@ const ForceLayoutPage = () => {
     <div id = "ForceLayoutPage">
       <div className="container-fluid">
         <div className="row forceHeader" id="ForceTop">
-          <h1>WHAT IS THE DISTRIBUTION <br></br>OF PACKAGE TYPES?</h1>
+          <h1>WHAT IS THE DISTRIBUTION <br></br>OF PACKAGE TYPES?</h1><br></br>
           <h3>NUMBER OF PACKAGE VARIETIES BY MANUFACTURER</h3>
         </div>
       </div>
