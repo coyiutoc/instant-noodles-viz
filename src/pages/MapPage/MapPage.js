@@ -1,10 +1,7 @@
 import React, {Component} from "react";
 import Map from "./Map/Map.js";
-import Map2 from "./Map/Map2.js";
 import MapBubble from "./Map/MapBubble.js";
-
 import "./MapPage.scss";
-import { CSSTransition } from 'react-transition-group';
 
 class MapPage extends Component {
   
@@ -16,6 +13,7 @@ class MapPage extends Component {
     }
   }
 
+  // Helper fxn to toggle the buttons
   toggleButton(event, id) {
     if ((id === "chloro" && this.state.chloroHidden) ||
         (id === "bubble" && this.state.bubbleHidden)) {
@@ -56,9 +54,6 @@ class MapPage extends Component {
           </div>
           <div className="container-fluid">
             <div className="row mapFooter">
-              {/* <div className="downArrow bounce">
-                <i className="fas fa-angle-down"></i>
-              </div> */}
             </div>
           </div>
         </div>

@@ -14,6 +14,7 @@ import Indomie from '../../../assets/imgs/Indomie.jpg';
 import Koka from '../../../assets/imgs/Koka.png';
 import Ottogi from '../../../assets/imgs/Ottogi.jpg';
 
+// Data for hover component
 const brandSrc = {
   "Nissin": {
     img: Nissin,
@@ -56,6 +57,7 @@ const brandSrc = {
     country: "South Korea"
   }
 }
+
 class BarChart extends Component {
   constructor(props){
      super(props)
@@ -75,18 +77,15 @@ class BarChart extends Component {
     var width = node.getBoundingClientRect().width;
     var height = node.getBoundingClientRect().height * 0.95;
   
-    //var margin = {top: window.innerHeight*0.05, right: width/4, bottom: window.innerHeight*0.05, left: width/3, bottom_label_buffer: window.innerHeight*0.05},
     var margin = {top: height*0.05, right: width*0.1, bottom: height*0.1, left: width*0.15 },
     width = width - margin.left - margin.right,
     height = height - margin.top - margin.bottom;
 
     var graph = d3.select(node)
                   .append("svg")
-                    // .attr("width", width + margin.left + margin.right)
-                    // .attr("height", height + margin.top + margin.bottom)
-                    .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                  .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
     
-                    var svg   = graph.append("g")
+    var svg   = graph.append("g")
                      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var xAxisLabel = d3.select(node)
@@ -184,6 +183,7 @@ class BarChart extends Component {
         
         // Add transition on bars
         var contentDiv = d3.select("#barHoverContent");
+
         // Add hover
         bars.on("mouseover", function(d) {
 
@@ -202,7 +202,7 @@ class BarChart extends Component {
             <div><b>Produces:</b> ${d["Count"]} Varieties of Instant Noodles</div>
           `
           contentDiv.html(html);  
-          })          
+        })          
         .on("mouseout", function(d) { 
 
             d3.select(this)
@@ -216,9 +216,9 @@ class BarChart extends Component {
               })
 
             contentDiv.html("<h3>Hover over a bar!</h3>");
-
         });
-
+        
+        // Transition effect on bars
         bars.transition()
               .duration(transition_duration)
               .delay(function (d, i) {

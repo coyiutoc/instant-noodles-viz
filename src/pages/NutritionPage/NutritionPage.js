@@ -16,6 +16,7 @@ class NutritionPage extends Component {
   componentDidMount() {
     var comp = this;
 
+    // Watch when div is in view
     window.addEventListener('scroll', function() {
       if (comp.inView()){
         console.log("NUTRITION PG IN VIEW");
@@ -31,6 +32,7 @@ class NutritionPage extends Component {
     });
   }
 
+  // Checks if the desired div is in view
   inView() {
     let page = $("#NutritionPage")[0];
     let offset = $("#LandingPage")[0].getBoundingClientRect().height;
@@ -81,9 +83,6 @@ class NutritionPage extends Component {
         </div>
         <div className="container-fluid">
           <div className="row nutritionFooter">
-            {/* <div className="downArrow bounce">
-              <i className="fas fa-angle-down"></i>
-            </div> */}
           </div>
         </div>
       </div>

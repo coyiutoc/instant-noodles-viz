@@ -2,8 +2,6 @@ import React, {Component} from "react";
 import "./Map.scss";
 import * as d3 from 'd3'
 import * as topojson from 'topojson'
-import {interpolateOranges} from 'd3-scale-chromatic'
-
 import locationData from '../../../data/data.csv';
 
 class Map extends Component {
@@ -22,43 +20,52 @@ class Map extends Component {
     
     const map = d3.select(node);
 
+    // Tooltip setup
     var tooltip = d3.select("#map-container")
                     .append("div")
                     .attr("class", "tooltip")
                     .style("position", "absolute")
                     .style("z-index", "10")
                     .text("a simple tooltip");
-                    
+    
+    // Width and height
     const width = d3.select(".mapContent").node().getBoundingClientRect().width;
     const height = d3.select(".mapContent").node().getBoundingClientRect().height*1.2;
 
+    // Color scale
     var color = d3.scaleLinear()
                   .domain([0, 350])
                   .interpolate(d3.interpolateHcl)
                   .range([d3.rgb("#ffcb8f"), d3.rgb('#ff4517')]);
 
+    // Projection setup
     const projection = d3.geoMercator()
                          .translate([ width/2, height/2 + 50]); 
     const path = d3.geoPath().projection(projection);
     
+    // Zoom setup
     const zoom = d3.zoom()
                   .scaleExtent([1, 3])
                   .translateExtent([[0,0], [width, height]])
                   .extent([[0, 0], [width, height]])
                   .on("zoom", zoomed);
 
+    // Main svg
     const svg = map.append("svg")
                    .attr("viewBox", `0 0 ${width} ${height}`)
 
+    // Grey bg
     const bg = svg.append("rect")
                   .attr("width", width)
                   .attr("height", height)
                   .style("fill", "white")
                   .style("opacity", 0.1);
-       
+    
+    // G for svg paths
     const g = svg.append("g")
                  .attr("id", "country-paths")
 
+    // Color scale for legend
     let legendColors = d3.scaleLinear()
                  .domain([0, 20])
                  .interpolate(d3.interpolateHcl)
@@ -66,6 +73,7 @@ class Map extends Component {
 
     let array = [...Array(20).keys()]
 
+    // Legend boxes
     const legend = g
            .append("g")
            .attr("transform", `translate(100, ${height*0.85})`)
@@ -88,6 +96,7 @@ class Map extends Component {
              .style("opacity", 1)
              .duration(800);;
 
+    // Legend title
     const legendTitle = g.append("g")
                          .attr("transform", `translate(110, ${height*0.85 - 10})`)
                          .append("text")
@@ -100,6 +109,7 @@ class Map extends Component {
                          .style("fill-opacity", 1)
                          .duration(800);
 
+    // Legend labels
     const legendLabels = g.append("g")
                           .attr("transform", `translate(100, ${height*0.85 + 20})`)
                           .selectAll("legend")
@@ -141,8 +151,6 @@ class Map extends Component {
     function ready(error, world, data) {
       if (error) throw error;
 
-      let geometries = world.objects.countries.geometries;
-
       var countries = topojson.feature(world, world.objects.countries).features;
       let paths = g.selectAll(".country")
           .data(countries)
@@ -157,7 +165,6 @@ class Map extends Component {
 
             if (index !== -1) {
               return color(parseInt(data[index]["n"]));
-              //return interpolateOranges(parseInt(data[index]["n"])/100);
             } else {
               return "black";
             }
@@ -187,7 +194,6 @@ class Map extends Component {
                       .style("left", (d3.event.pageX + 10) + "px")		
                       .style("top", (d3.event.pageY - 28) + "px")
                       .style("display", "block");	
-
             }
           })
           .on("mousemove", function(){
@@ -211,20 +217,18 @@ class Map extends Component {
       g.attr("transform", d3.event.transform);
     }  
 
+    // Helper fxn to check if country name exists in dataset
     function noodleIndex(countryName, noodleData) {
       let idx = noodleData.findIndex(field => {
-
         if (countryName === "United States of America" && field["homecontinent"].includes("United States")){
           return true;
         }
-        
         return field["homecontinent"] === countryName;
       });
-
       return idx;
     }
-    
   }
+  
   render() {
      return (
       <div id="map-container" ref={node => this.node = node}>

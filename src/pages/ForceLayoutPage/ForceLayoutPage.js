@@ -1,7 +1,6 @@
 import React from "react";
 import "./ForceLayoutPage.scss";
 import ForceLayout from "./ForceLayout/ForceLayout";
-import ForceLayout2 from "./ForceLayout/ForceLayout2";
 
 const ForceLayoutPage = () => {
   
@@ -15,15 +14,11 @@ const ForceLayoutPage = () => {
       </div>
       <div className="container-fluid">
         <div className="row forceContent">
-          {/* <ForceLayout /> */}
-          <ForceLayout2 />
+          <ForceLayout />
         </div>
       </div>
       <div className="container-fluid">
         <div className="row forceFooter">
-          {/* <div className="downArrow bounce">
-            <i className="fas fa-angle-down"></i>
-          </div> */}
         </div>
       </div>
     </div>

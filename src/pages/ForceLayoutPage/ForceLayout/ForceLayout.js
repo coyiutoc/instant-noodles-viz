@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import * as d3 from 'd3'
-import {scale} from 'd3-scale';
+import "./ForceLayout.scss";
 import brandData from '../../../data/type_by_brand2.csv';
 
 class ForceLayout extends Component {
@@ -14,110 +14,218 @@ class ForceLayout extends Component {
   componentDidUpdate() {
      this.createForce();
   }
-  createForce2() {
+  // Code was refactored from: https://github.com/vlandham/bubble_chart_v4
+  createForce() {
     var node = this.node;
 
-    let width = 960,
-        height = 500,
-        padding = 1.5, // separation between same-color circles
-        clusterPadding = 6, // separation between different-color circles
-        maxRadius = height*0.1;
+    var tooltip = d3.select(node)
+                    .append("div")
+                    .attr("class", "forcetooltip")
+                    .style("position", "absolute")
+                    .style("z-index", "10")
+                    .text("a simple tooltip");
 
-    let svg = d3.select(node)
-        .append('svg')
-        .attr('height', height)
-        .attr('width', width)
-        .append('g').attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')');
+    // Creates a bubble chart
+    function bubbleChart() {
+      // Constants for sizing
+      var width = 1200;
+      var height = 600;
 
-    // Define the div for the tooltip
-    let div = d3.select(node).append("div") 
-        .attr("class", "tooltip")       
-        .style("opacity", 0);
+      // Locations to move bubbles towards, depending
+      // on which view mode is selected.
+      var center = { x: width / 2, y: height / 2 };
 
-    //load college major data
-    d3.csv(brandData, function(d){
-      d = d.filter(function(el) { return !el["Brand"].includes("Total") });
-      d = d.filter(function(el) { 
-        let VALID = ["Cup", "Bowl", "Tray", "Pack"];
-        if (VALID.includes(el["Type"])){
-          return true;
-        } 
-        return false
+      var yearCenters = {
+        "Bowl": { x: width * (1/8), y: height / 2 , title: "B O W L"},
+        "Cup":  { x: width * (3/8), y: height / 2 , title: "C U P"},
+        "Pack": { x: width * (5/8), y: height / 2 , title: "P A C K"},
+        "Tray": { x: width * (7/8), y: height / 2 , title: "T R A Y"},
+      };
+
+      // X locations of the year titles.
+      var yearsTitleX = {
+        "Bowl": width * (1/8) - 65,
+        "Cup": width * (3/8) - 40,
+        "Pack": width * (5/8) + 20,
+        "Tray": width * (7/8) + 70
+      };
+
+      // @v4 strength to apply to the position forces
+      var forceStrength = 0.03;
+
+      // These will be set in create_nodes and create_vis
+      var svg = null;
+      var bubbles = null;
+      var nodes = [];
+
+      // Computes force strength
+      function charge(d) {
+        return -Math.pow(d.radius, 2.0) * forceStrength;
+      }
+
+      // Instantiate force simulation
+      var simulation = d3.forceSimulation()
+        .velocityDecay(0.2)
+        .force('x', d3.forceX().strength(forceStrength).x(center.x))
+        .force('y', d3.forceY().strength(forceStrength).y(center.y))
+        .force('charge', d3.forceManyBody().strength(charge))
+        .on('tick', ticked);
+
+      simulation.stop();
+
+      // Color scale
+      var fillColor = d3.scaleOrdinal()
+        .domain(['low', 'medium', 'high'])
+        .range(["#826A6A", "#FFBC03", "#BA5900", "#F26C6C"]);
+
+      // Creates nodes for layout
+      function createNodes(rawData) {
+
+        // Some additional data cleanup
+        rawData = rawData.filter(function(el) { return !el["Brand"].includes("Total") });
+        rawData = rawData.filter(function(el) { 
+          let VALID = ["Cup", "Bowl", "Tray", "Pack"];
+          if (VALID.includes(el["Type"])){
+            return true;
+          } 
+          return false
        });
 
-      let n = d.length, // total number of nodes
-      m = 4, // number of distinct clusters
-      z = d3.scaleOrdinal(d3.schemeCategory20),
-      clusters = new Array(m);
+        var maxAmount = d3.max(rawData, function (d) { return +parseInt(d["Count"]); });
 
-      let radiusScale = d3.scaleLinear()
-                          .domain(d3.extent(d, function(d) { return +d["Count"];} ))
-                          .range([4, maxRadius]);
+        // Size of bubbles
+        var radiusScale = d3.scalePow()
+          .exponent(0.5)
+          .range([2, 45])
+          .domain([0, maxAmount]);
 
-      let nodes = d.map((d) => {
-        // scale radius to fit on the screen
-        let scaledRadius  = radiusScale(+d["Count"]),
-            forcedCluster = d["Type"];
+        // Creating node data from raw
+        var myNodes = rawData.map(function (d) {
+          return {
+            id: d["Brand"],
+            radius: radiusScale(+parseInt(d["Count"])),
+            value: +parseInt(d["Count"]),
+            name: d["Brand"],
+            type: d["Type"],
+            x: Math.random() * 900,
+            y: Math.random() * 800
+          };
+        });
 
-        // add cluster id and radius to array
-        d = {
-          cluster     : forcedCluster,
-          r           : scaledRadius,
-          count       : d["Count"],
-          type   : d["Type"]
-        };
-        // add to clusters array if it doesn't exist or the radius is larger than another radius in the cluster
-        if (!clusters[forcedCluster] || (scaledRadius > clusters[forcedCluster].r)) clusters[forcedCluster] = d;
+        // Sort to prevent occlusion of smaller nodes
+        myNodes.sort(function (a, b) { return b.value - a.value; });
 
-        return d;
-      });
-      
-      // append the circles to svg then style
-      // add functions for interaction
-      let circles = svg.append('g')
-            .datum(nodes)
-          .selectAll('.circle')
-            .data(d => d)
-          .enter().append('circle')
-            .attr('r', (d) => d.r)
-            .attr('fill', (d) => z(d.cluster))
-            .attr('stroke', 'black')
-            .attr('stroke-width', 1)
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended))
-            // add tooltips to each circle
-            .on("mouseover", function(d) {
-
-                div.transition()    
-                    .duration(200)    
-                    .style("opacity", .9);    
-                div .html( "The type " + d.type+ "<br/>With count " + d.count )  
-                    .style("left", (d3.event.pageX) + "px")   
-                    .style("top", (d3.event.pageY - 28) + "px");  
-                })          
-            .on("mouseout", function(d) {   
-                div.transition()    
-                    .duration(500)    
-                    .style("opacity", 0); 
-            });
-
-      // create the clustering/collision force simulation
-      let simulation = d3.forceSimulation(nodes)
-          .velocityDecay(0.2)
-          .force("x", d3.forceX().strength(.005))
-          .force("y", d3.forceY().strength(.005))
-          .force("charge", d3.forceManyBody().strength(-1))
-          .force("collide", collide)
-          .force("cluster", clustering)
-          .on("tick", ticked);
-
-      function ticked() {
-          circles
-              .attr('cx', (d) => d.x)
-              .attr('cy', (d) => d.y);
+        return myNodes;
       }
+
+      var chart = function chart(selector, rawData) {
+
+        nodes = createNodes(rawData);
+
+        // Instantiate the svg
+        svg = d3.select(selector)
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
+
+        // Bind nodes data to what will become DOM elements to represent them.
+        bubbles = svg.selectAll('.bubble')
+                     .data(nodes, function (d) { return d.id; });
+
+        // Create the bubbles
+        var bubblesE = bubbles.enter().append('circle')
+          .classed('bubble', true)
+          .attr('r', 0)
+          .attr('fill', function (d) { return fillColor(d.type); })
+          .attr('stroke', function (d) { return d3.rgb(fillColor(d.type)).darker(); })
+          .attr('stroke-width', 2)
+          .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended))
+          .on('mouseover', function(d, i) {
+            d3.select(this)
+              .style('fill', "white");
+
+            tooltip.transition()		
+              .duration(200)		
+              .style("opacity", .9);	
+
+            let string = `<h5><b>Manufacturer:</b> ${d.name}</h5>
+                          <p>Makes <font color="red">${d.value}</font> ${d.type}s</p>`;
+
+            tooltip.html(string)	
+                    .style("left", (d3.event.pageX + 10) + "px")		
+                    .style("top", (d3.event.pageY - 28) + "px")
+                    .style("display", "block");	
+          })
+          .on("mousemove", function(){
+            tooltip.style("top", (d3.event.pageY - 28)+"px")
+                   .style("left",(d3.event.pageX + 10)+"px");
+          })
+          .on('mouseout', function(d, i) {
+
+            d3.select(this).style('fill', fillColor(d.type));
+
+            tooltip.html("HELLO")	
+            .style("display", "none");	
+          });
+
+        // Merge the original empty selection and the enter selection
+        bubbles = bubbles.merge(bubblesE);
+
+        // Bubble transition
+        bubbles.transition()
+          .duration(2000)
+          .attr('r', function (d) { return d.radius; });
+
+        // Run simulation
+        simulation.nodes(nodes);
+
+        // Legend constants
+        var legendData = [{"Type": "Bowl", "Color": "#F5BF42"},
+                          {"Type": "Cup", "Color": "#E17470"},
+                          {"Type": "Pack", "Color": "#7E6B6B"},
+                          {"Type": "Tray", "Color": "#AE5F22"}];  
+        var xBuffer = width*0.1;
+
+        // Add legend circles
+        svg
+          .selectAll("legend")
+          .data(legendData)
+          .enter()
+          .append("circle")
+            .attr("class", "legendCircle")
+            .attr("cx", function(d,i){
+              return xBuffer;
+            })
+            .attr("cy", function(d,i){ 
+              return 30 * (i+1) + 100;
+            })
+            .attr("r",10)
+            .style("fill", function(d) {
+              return d["Color"];
+            })
+
+        // Add legend labels
+        svg
+          .selectAll("legend")
+          .data(legendData)
+          .enter()
+          .append("text")
+            .attr("class", "legendText")
+            .attr('x', xBuffer+20)
+            .attr('y', function(d, i){ 
+              return 30 * (i+1) + 100;
+            })
+            .text( function(d){ return d["Type"].toUpperCase() } )
+            .style("font-size", 13)
+            .attr('alignment-baseline', 'middle')
+            .style('fill', 'white')
+
+        // Set initial layout to single group.
+        groupBubbles();
+      };
 
       // Drag functions used for interactivity
       function dragstarted(d) {
@@ -137,232 +245,120 @@ class ForceLayout extends Component {
         d.fy = null;
       }
 
-      // These are implementations of the custom forces.
-      function clustering(alpha) {
-          nodes.forEach(function(d) {
-            var cluster = clusters[d.cluster];
-            if (cluster === d) return;
-            var x = d.x - cluster.x,
-                y = d.y - cluster.y,
-                l = Math.sqrt(x * x + y * y),
-                r = d.r + cluster.r;
-            if (l !== r) {
-              l = (l - r) / l * alpha;
-              d.x -= x *= l;
-              d.y -= y *= l;
-              cluster.x += x;
-              cluster.y += y;
-            }
-          });
+      function ticked() {
+        bubbles
+          .attr('cx', function (d) { return d.x; })
+          .attr('cy', function (d) { return d.y; });
       }
 
-      function collide(alpha) {
-        var quadtree = d3.quadtree()
-            .x((d) => d.x)
-            .y((d) => d.y)
-            .addAll(nodes);
+      // Position of the four group nodes
+      function nodeYearPos(d) {
+        return yearCenters[d.type].x;
+      }
 
-        nodes.forEach(function(d) {
-          var r = d.r + maxRadius + Math.max(padding, clusterPadding),
-              nx1 = d.x - r,
-              nx2 = d.x + r,
-              ny1 = d.y - r,
-              ny2 = d.y + r;
-          quadtree.visit(function(quad, x1, y1, x2, y2) {
+      // Sets viz to be unsorted version
+      function groupBubbles() {
+        hideYearTitles();
+        simulation.force('x', d3.forceX().strength(forceStrength).x(center.x));
+        simulation.alpha(1).restart();
+      }
 
-            if (quad.data && (quad.data !== d)) {
-              var x = d.x - quad.data.x,
-                  y = d.y - quad.data.y,
-                  l = Math.sqrt(x * x + y * y),
-                  r = d.r + quad.data.r + (d.cluster === quad.data.cluster ? padding : clusterPadding);
-              if (l < r) {
-                l = (l - r) / l * alpha;
-                d.x -= x *= l;
-                d.y -= y *= l;
-                quad.data.x += x;
-                quad.data.y += y;
-              }
-            }
-            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-          });
+
+      // Sets viz to sorted version
+      function splitBubbles() {
+        showYearTitles();
+        simulation.force('x', d3.forceX().strength(forceStrength).x(nodeYearPos));
+        simulation.alpha(1).restart();
+      }
+
+      // Hide displays on sorted version
+      function hideYearTitles() {
+        svg.selectAll('.year').remove();
+        d3.selectAll(".legendCircle").attr("display", "block");
+        d3.selectAll(".legendText").attr("display", "block");
+      }
+
+      // Show sorted headers
+      function showYearTitles() {
+        var yearsData = d3.keys(yearsTitleX);
+        var years = svg.selectAll('.year')
+          .data(yearsData);
+
+        years.enter().append('text')
+          .attr('class', 'year')
+          .attr('x', function (d) { return yearsTitleX[d]; })
+          .attr('y', height-40)
+          .attr('text-anchor', 'middle')
+          .style("fill", function(d, i) {
+            return fillColor(d);
+          })
+          .style("font-size", 20)
+          .text(function (d) { return yearCenters[d].title; });
+
+        d3.selectAll(".legendCircle").attr("display", "none");
+        d3.selectAll(".legendText").attr("display", "none");
+      }
+
+      // Toggles display based on button id
+      chart.toggleDisplay = function (displayName) {
+        if (displayName === 'year') {
+          splitBubbles();
+        } else {
+          groupBubbles();
+        }
+      };
+
+      return chart;
+    }
+
+    var myBubbleChart = bubbleChart();
+
+    function display(error, data) {
+      if (error) {
+        console.log(error);
+      }
+
+      myBubbleChart(node, data);
+    }
+
+    // Setting up the toggle buttons
+    function setupButtons() {
+      d3.select('#toolbar')
+        .selectAll('.button')
+        .on('click', function () {
+          // Remove active class from all buttons
+          d3.selectAll('.button').classed('active', false);
+          // Find the button just clicked
+          var button = d3.select(this);
+
+          // Set it as the active button
+          button.classed('active', true);
+
+          // Get the id of the button
+          var buttonId = button.attr('id');
+
+          // Toggle the bubble chart based on
+          // the currently clicked button.
+          myBubbleChart.toggleDisplay(buttonId);
         });
-      }
-    });
-  }
-  createForce() {
-
-    var that = this.node;
-    var container = d3.select(that);
-
-    var tooltip = d3.select(that)
-                    .append("div")
-                    .attr("class", "tooltip")
-                    .style("position", "absolute")
-                    .style("z-index", "10")
-                    .text("a simple tooltip");
-
-    var width = d3.select(".forceContent").node().getBoundingClientRect().width, 
-        height = d3.select(".forceContent").node().getBoundingClientRect().height, 
-        nodePadding = 2.5;
-
-    var svg = container.append("svg")
-                       .attr("width", width)
-                       .attr("height", height);
-  
-    svg.append("rect")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("fill", "white")
-      .style("opacity", 0.1);
-
-    var color = {"Bowl": "#826A6A", "Cup":"#FFBC03", "Pack":"#BA5900", "Tray":"#F26C6C"};
-
-    var simulation = d3.forceSimulation()
-        .force("forceX", d3.forceX().strength(.1).x(width * .5))
-        .force("forceY", d3.forceY().strength(.1).y(height * .5))
-        .force("center", d3.forceCenter().x(width * .5).y(height * .5))
-        .force("charge", d3.forceManyBody().strength(-10));
-
-    d3.csv(brandData, types, function(error, graph){
-      if (error) throw error;
-      
-      graph = graph.filter(function(el) { return !el["Brand"].includes("Total") });
-
-      // sort the nodes so that the bigger ones are at the back
-      graph = graph.sort(function(a,b){ return b["Count"] - a["Count"]; });
-
-      //update the simulation based on the data
-      simulation
-          .nodes(graph)
-          .force("collide", d3.forceCollide().strength(.9).radius(function(d){ return d.radius + nodePadding; }).iterations(1))
-          .on("tick", function(d){
-            node
-                .attr("cx", function(d){ return d.x; })
-                .attr("cy", function(d){ return d.y; })
-          });
-
-      var node = svg.append("svg")
-          .attr("class", "node")
-          .selectAll("circle")
-          .data(graph)
-          .enter().append("circle")
-            .attr("r", function(d) { return d.radius; })
-            .attr("fill", function(d) { return color[d["Type"]]; })
-            .attr("cx", function(d){ return d.x; })
-            .attr("cy", function(d){ return d.y; })
-            .attr("stroke", "white")
-            .attr("stroke-width", 1)
-            .on('mouseover', function(d, i) {
-                d3.select(this)
-                  .style('fill', "white");
-  
-                tooltip.transition()		
-                  .duration(200)		
-                  .style("opacity", .9);	
-  
-                let string = `<h5>${d["Brand"]}</h5>
-                              <b>${d["Count"]} ${d["Type"]}</b> varieties`;
-  
-                tooltip.html(string)	
-                        .style("left", (d3.event.pageX + 10) + "px")		
-                        .style("top", (d3.event.pageY - 28) + "px")
-                        .style("display", "block");	
-            })
-            .on("mousemove", function(){
-              tooltip.style("top", (d3.event.pageY - 28)+"px")
-                     .style("left",(d3.event.pageX + 10)+"px");
-            })
-            .on('mouseout', function(d, i) {
-                
-              d3.select(this).style('fill', function(d) {
-                return color[d["Type"]]
-              });
-              tooltip.html("")	
-                     .style("display", "none");	
-            })
-            .call(d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended));
-
-      // --------------- //
-      // ADD LEGEND //
-      // --------------- //
-
-      // Add legend: circles
-      var xCircle = 40
-      var xLabel = 90
-      var legendData = [{"Type": "Bowl", "Color": "#826A6A"},
-                        {"Type": "Cup", "Color": "#FFBC03"},
-                        {"Type": "Pack", "Color": "#BA5900"},
-                        {"Type": "Tray", "Color": "#F26C6C"}];
-      var xBuffer = width*0.1;
-
-      svg
-        .selectAll("legend")
-        .data(legendData)
-        .enter()
-        .append("circle")
-          .attr("cx", function(d,i){
-            return xBuffer;
-          })
-          .attr("cy", function(d,i){ 
-            return 30 * (i+1) + 100;
-          })
-          .attr("r",10)
-          .style("fill", function(d) {
-            return d["Color"];
-          })
-          .attr("stroke", "white")
-
-      // Add legend: labels
-      svg
-        .selectAll("legend")
-        .data(legendData)
-        .enter()
-        .append("text")
-          .attr('x', xBuffer+20)
-          .attr('y', function(d, i){ 
-            return 30 * (i+1) + 100;
-          })
-          .text( function(d){ return d["Type"].toUpperCase() } )
-          .style("font-size", 13)
-          .attr('alignment-baseline', 'middle')
-          .style('fill', 'white')
-
-    });
-
-    function dragstarted(d) {
-      if (!d3.event.active) simulation.alphaTarget(.03).restart();
-      d.fx = d.x;
-      d.fy = d.y;
     }
 
-    function dragged(d) {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
-    }
-
-    function dragended(d) {
-      if (!d3.event.active) simulation.alphaTarget(.03);
-      d.fx = null;
-      d.fy = null;
-    }
-
-    function types(d){
-      d["Count"] = +d["Count"];
-      d.size = +d["Count"] * 0.7;
-      d.radius = d.size;
-      return d;
-    }
+    // Load the data.
+    d3.csv(brandData, display);
+    setupButtons();
   }
   render() {
-     return (
-      <div id = "#ForceChart"
-          ref={node => this.node = node}>
-      </div>
-     )
-  }
+    return (
+      <div>
+        <div id="toolbar">
+          <button id="all" className="leftButton button active">UNSORTED</button>
+          <button id="year" className="rightButton button" >SORTED</button>
+        </div>
+        <div id = "#ForceChart" ref={node => this.node = node}>
+         </div>
+     </div>
+    )
+ }
 }
 
 export default ForceLayout;

@@ -18,6 +18,7 @@ class LandingPage extends Component {
     this.imgArray = [noodleBowlImg, maruchan, cupnoodle, indomie, samyang, ottogi, koka];
  }
 
+ // Ticker for the carousel on the right landing panel
  tick() {
   let img = this.imgArray[this.state.seconds%this.imgArray.length];
     this.setState(prevState => ({
@@ -49,10 +50,6 @@ class LandingPage extends Component {
                   <br></br>
                   <br></br>
                   All visualizations are made in D3, with data coming from <a href="https://www.kaggle.com/residentmario/ramen-ratings">this dataset.</a>
-                  {/* <p className="orangeColorFont">Keep scrolling.</p> */}
-                  {/* <div className="downArrow bounce">
-                    <i className="fas fa-angle-down"></i>
-                  </div> */}
                 </p>
               </div>
             </div>

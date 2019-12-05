@@ -19,9 +19,6 @@ const BarPage = () => {
       </div>
       <div className="container-fluid">
         <div className="row barFooter">
-          {/* <div className="downArrow bounce">
-            <i className="fas fa-angle-down"></i>
-          </div> */}
         </div>
       </div>
     </div>

@@ -2,8 +2,6 @@ import React, {Component} from "react";
 import "./Map.scss";
 import * as d3 from 'd3'
 import * as topojson from 'topojson'
-import {interpolateOranges} from 'd3-scale-chromatic'
-
 import locationData from '../../../data/data.csv';
 
 class MapBubble extends Component {
@@ -64,8 +62,6 @@ class MapBubble extends Component {
 
     function ready(error, world, data) {
       if (error) throw error;
-
-      let geometries = world.objects.countries.geometries;
 
       var countries = topojson.feature(world, world.objects.countries).features;
       let countryGroup = g.selectAll(".country")

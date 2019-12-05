@@ -1,7 +1,5 @@
 import React, {Component} from "react";
 import DonutChart from "./components/DonutChart/DonutChart.js";
-import $ from 'jquery';
-
 import "./NutritionPage.scss";
 
 class NutritionContent extends Component {

@@ -1,9 +1,7 @@
 import React, {Component} from "react";
 import "./DonutChart.scss";
 import * as d3 from 'd3'
-import {scale} from 'd3-scale';
 import {interpolate} from 'd3-interpolate';
-import $ from "jquery";
 
 class DonutChart extends Component {
   constructor(props){
